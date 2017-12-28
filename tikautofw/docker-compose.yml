@@ -1,0 +1,22 @@
+version: '3.4'
+
+secrets:
+  docker-ca:
+    file: ./secrets/ca.pem
+  docker-cert:
+    file: ./secrets/cert.pem
+  docker-key:
+    file: ./secrets/key.pem
+  mikrotik-pass:
+    file: ./secrets/mikrotik-pass
+
+services:
+  tikautofw:
+    image: nginx
+    stdin_open: true
+    tty: true
+    secrets:
+      - docker-ca
+      - docker-cert
+      - docker-key
+      - mikrotik-pass
