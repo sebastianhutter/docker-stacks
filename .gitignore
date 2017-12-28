@@ -1,3 +1,8 @@
 /keyrings/live/pubring.gpg~
 /keyrings/live/pubring.kbx~
 /keyrings/live/secring.gpg
+/tikautofw/key.pem
+/tikautofw/secrets/ca.pem
+/tikautofw/secrets/cert.pem
+/tikautofw/secrets/key.pem
+/tikautofw/secrets/mikrotik-pass
