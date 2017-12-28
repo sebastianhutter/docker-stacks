@@ -1,1 +1,1 @@
-tikautofw/key.pem
+tikautofw/secrets/ca.pem
