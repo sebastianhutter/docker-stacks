@@ -1,0 +1,198 @@
+version: '3.4'
+
+networks:
+  connectivity:
+    external:
+      name: connectivity
+  usenet:
+    driver: overlay
+
+volumes:
+  # volumes for nzbhydra services
+  usenet-nzbhydra-complete:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-sabnzbd-complete/nzbhydra"
+  usenet-nzbhydra-config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-nzbhydra-config"
+  usenet-nzbhydra-nzb:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-nzbhydra-nzb"
+
+  # volumes for sabnzbd container
+  usenet-sabnzbd-incomplete:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-sabnzbd-incomplete"
+  usenet-sabnzbd-complete:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-sabnzbd-complete"
+  usenet-sabnzbd-logs:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-sabnzbd-logs"
+  usenet-sabnzbd-admin:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-sabnzbd-admin"
+
+  # media library
+  usenet-library:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/library"
+  usenet-library-tv:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/library/tv"
+  usenet-library-tv-de:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/library/tv_de"
+
+  # volumes for couchpotato
+  usenet-couchpotato-logs:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-couchpotato-logs"
+  usenet-couchpotato-plugins:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-couchpotato-plugins"
+  usenet-couchpotato-db_backup:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-couchpotato-db_backup"
+  usenet-couchpotato-database:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-couchpotato-database"
+  usenet-couchpotato-cache:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-couchpotato-cache"
+
+  # volumes for sonarr
+  usenet-sonarr-conf:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-sonarr-conf"
+
+services:
+  # reverse proxy handling incoming connections from our connectivity haproxy
+  reverse-proxy:
+    image: sebastianhutter/nginx:latest
+    networks:
+      - connectivity
+      - usenet
+    environment:
+      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/usenet/nginx.conf
+      INDEX_URL: http://nas.barfoot.local/dnas/docker/usenet/index.html
+
+  # nzbhydra services
+  nzbhydra-browser:
+    image: sebastianhutter/elfinder:latest
+    environment:
+      ELFINDER_FILES_URI: /nzbhydra-browser/files
+    stdin_open: true
+    volumes:
+      - usenet-nzbhydra-complete:/var/www/html/files
+    networks:
+      - usenet
+    tty: true
+
+  nzbhydra:
+    image: linuxserver/hydra
+    stdin_open: true
+    volumes:
+      - usenet-nzbhydra-config:/config
+      - usenet-nzbhydra-nzb:/downloads
+    networks:
+      - usenet
+    tty: true
+
+  # usenet services
+  sabnzbd:
+    image: sebastianhutter/sabnzbd:latest
+    environment:
+      SABNZBD_CONFIG_URL: http://nas.barfoot.local/dnas/docker/usenet/sabnzbd.ini
+      NZBTOMEDIA_CONFIG_URL: http://nas.barfoot.local/dnas/docker/usenet/autoProcessMedia.cfg
+    stdin_open: true
+    volumes:
+      - usenet-sabnzbd-admin:/sabnzbd/admin
+      - usenet-sabnzbd-complete:/sabnzbd/Downloads/complete
+      - usenet-sabnzbd-incomplete:/sabnzbd/Downloads/incomplete
+      - usenet-sabnzbd-logs:/sabnzbd/logs
+    networks:
+      - usenet
+    tty: true
+
+  couchpotato:
+    image: sebastianhutter/couchpotato:latest
+    environment:
+      COUCHPOTATO_CONFIG_URL: http://nas.barfoot.local/dnas/docker/usenet/settings.conf
+    stdin_open: true
+    volumes:
+      - usenet-couchpotato-cache:/CouchPotatoServer/cache
+      - usenet-couchpotato-plugins:/CouchPotatoServer/custom_plugins
+      - usenet-couchpotato-database:/CouchPotatoServer/database
+      - usenet-couchpotato-db_backup:/CouchPotatoServer/db_backup
+      - usenet-couchpotato-logs:/CouchPotatoServer/logs
+      - usenet-sabnzbd-incomplete:/sabnzbd/Downloads/incomplete
+      - usenet-sabnzbd-complete:/sabnzbd/Downloads/complete
+      - usenet-library:/library
+    networks:
+      - usenet
+    tty: true
+
+  sonarr:
+    image: linuxserver/sonarr
+    environment:
+      PGID: '0'
+      PUID: '0'
+    stdin_open: true
+    volumes:
+      - usenet-sabnzbd-complete:/sabnzbd/Downloads/complete
+      - usenet-sonarr-conf:/config
+      - usenet-library-tv:/tv
+      - usenet-library-tv-de:/tv_de
+      - /dev/rtc:/dev/rtc:ro
+    networks:
+      - usenet
+    tty: true
