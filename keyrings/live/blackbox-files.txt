@@ -1,2 +1,1 @@
-tikautofw/cert.pem
 tikautofw/key.pem
