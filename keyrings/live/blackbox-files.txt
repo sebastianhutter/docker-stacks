@@ -1,1 +1,2 @@
 tikautofw/secrets/ca.pem
+tikautofw/secrets/cert.pem
