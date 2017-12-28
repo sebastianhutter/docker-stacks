@@ -10,4 +10,6 @@ stack=$1
 [ -z "${stack}" ] && echo "please specify the stack to deploy" && exit 1
 
 # deploy stack
-docker stack deploy --compose-file ${stack}/docker-compose.yml ${stack}
+pushd ${stack}
+docker stack deploy --compose-file docker-compose.yml ${stack}
+popd
