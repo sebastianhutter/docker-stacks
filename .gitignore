@@ -8,3 +8,5 @@
 /tikautofw/secrets/mikrotik-pass
 /connectivity/secrets/aws-key
 /connectivity/secrets/aws-secret
+/vault/secrets/aws-key
+/vault/secrets/aws-secret
