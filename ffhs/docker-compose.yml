@@ -1,0 +1,30 @@
+version: '3.4'
+
+networks:
+  connectivity:
+    external:
+      name: connectivity
+
+volumes:
+  # volumes for pizza media service
+  ffhs-pizza-media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/pizza-media"
+
+services:
+  pizza-api:
+    image: sebastianhutter/pizza-api
+    networks:
+      - connectivity
+
+  pizza-media:
+    image: nginx:alpine
+    stdin_open: true
+    volumes:
+      - ffhs-pizza-media:/usr/share/nginx/html:ro
+    tty: true
+    networks:
+      - connectivity
