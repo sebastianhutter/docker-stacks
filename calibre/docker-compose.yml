@@ -1,0 +1,41 @@
+version: '3.4'
+
+
+networks:
+  connectivity:
+    external:
+      name: connectivity
+  calibre:
+    driver: overlay
+
+volumes:
+  calibre-privat-library:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/calibre/personal"
+
+services:
+  reverse-proxy:
+    image: sebastianhutter/nginx
+    networks:
+      - connectivity
+      - calibre
+    stdin_open: true
+    tty: true
+    environment:
+      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/calibre/nginx.conf
+      INDEX_URL: http://nas.barfoot.local/dnas/docker/usenet/index.html
+
+  privat:
+    image: sebastianhutter/calibreserver:latest
+    environment:
+      PREFIX_URL: /sebastian
+    stdin_open: true
+    volumes:
+        - calibre-privat-library:/library
+    tty: true
+    networks:
+      - calibre
+
