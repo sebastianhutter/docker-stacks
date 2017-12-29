@@ -5,3 +5,4 @@ tikautofw/secrets/cert.pem
 tikautofw/secrets/key.pem
 tikautofw/secrets/mikrotik-pass
 vault/secrets/aws-key
+vault/secrets/aws-secret
