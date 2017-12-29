@@ -1,0 +1,95 @@
+version: '3.4'
+
+networks:
+  connectivity:
+    external:
+      name: connectivity
+  drone:
+    driver: overlay
+
+volumes:
+  drone-server:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/drone-server"
+  drone-letsencrypt-etc:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/drone-letsencrypt"
+
+secrets:
+  aws-key:
+    file: ./secrets/aws-key
+  aws-secret:
+    file: ./secrets/aws-secret
+  drone-secret:
+    file: ./secrets/drone-secret
+  github-client:
+    file: ./secrets/github-client
+  github-secret:
+    file: ./secrets/github-secret
+
+services:
+  reverse-proxy:
+    image:  sebastianhutter/haproxy:latest
+    networks:
+      - connectivity
+      - drone
+    environment:
+      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/drone/haproxy.cfg
+      SSL_CERTIFICATE: /etc/letsencrypt/live/drone.hutter.cloud/haproxy.pem
+    ports:
+      - 8443:8443/tcp
+    volumes:
+      - drone-letsencrypt-etc:/etc/letsencrypt
+
+  certbot:
+    image: sebastianhutter/certbot:latest  
+    environment:
+      DOMAIN: drone.hutter.cloud
+      EMAIL: mail@sebastian-hutter.ch
+      AWS_DEFAULT_REGION: eu-central-1
+      AWS_ACCESS_KEY_ID: /run/secrets/aws-key
+      AWS_SECRET_ACCESS_KEY: /run/secrets/aws-secret
+    secrets:  
+      - aws-key
+      - aws-secret
+    volumes:
+      - drone-letsencrypt-etc:/etc/letsencrypt
+
+  server:
+    image: sebastianhutter/drone-server:latest
+    volumes:
+      - drone-server:/var/lib/drone/
+    environment:
+      DRONE_OPEN: "false"
+      DRONE_HOST: https://drone.hutter.cloud:8443
+      DRONE_GITHUB: "true"
+      DRONE_GITHUB_CLIENT: /run/secrets/github-client
+      DRONE_GITHUB_SECRET: /run/secrets/github-secret
+      DRONE_SECRET: /run/secrets/drone-secret
+    networks:
+      - drone
+    secrets:  
+      - github-client
+      - github-secret
+      - drone-secret
+
+  agent:
+    image: sebastianhutter/drone-agent:latest
+    depends_on:
+      - server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      DRONE_SERVER: drone_server:9000
+    deploy:
+      mode: global
+    networks:
+      - drone
+    secrets:
+      - drone-secret
