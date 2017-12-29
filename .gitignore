@@ -10,3 +10,8 @@
 /connectivity/secrets/aws-secret
 /vault/secrets/aws-key
 /vault/secrets/aws-secret
+/drone/secrets/aws-key
+/drone/secrets/aws-secret
+/drone/secrets/drone-secret
+/drone/secrets/github-client
+/drone/secrets/github-secret

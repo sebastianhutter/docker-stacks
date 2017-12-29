@@ -87,6 +87,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       DRONE_SERVER: drone_server:9000
+      DRONE_SECRET: /run/secrets/drone-secret
     deploy:
       mode: global
     networks:
