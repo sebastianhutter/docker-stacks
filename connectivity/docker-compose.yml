@@ -1,0 +1,17 @@
+version: '3.4'
+
+networks:
+  connectivity:
+    external:
+      name: connectivity
+
+services:
+  reverse-proxy:
+    image:  sebastianhutter/haproxy:latest
+    networks:
+      - connectivity
+    environment:
+      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/connectivity/haproxy.cfg
+    ports:
+      - 80:80/tcp
+      - 443:443/tcp
