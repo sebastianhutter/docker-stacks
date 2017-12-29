@@ -6,3 +6,5 @@
 /tikautofw/secrets/cert.pem
 /tikautofw/secrets/key.pem
 /tikautofw/secrets/mikrotik-pass
+/connectivity/secrets/aws-key
+/connectivity/secrets/aws-secret

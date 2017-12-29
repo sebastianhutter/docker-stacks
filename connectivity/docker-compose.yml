@@ -5,6 +5,20 @@ networks:
     external:
       name: connectivity
 
+volumes:
+  connectivity-letsencrypt-etc:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/connectivity-letsencrypt"
+
+secrets:
+  aws-key:
+    file: ./secrets/aws-key
+  aws-secret:
+    file: ./secrets/aws-secret
+
 services:
   reverse-proxy:
     image:  sebastianhutter/haproxy:latest
@@ -15,3 +29,19 @@ services:
     ports:
       - 80:80/tcp
       - 443:443/tcp
+    volumes:
+      - connectivity-letsencrypt-etc:/etc/letsencrypt
+
+  certbot:
+    image: sebastianhutter/certbot:latest  
+    environment:
+      DOMAIN: usenet.hutter.cloud,calibre.hutter.cloud
+      EMAIL: mail@sebastian-hutter.ch
+      AWS_DEFAULT_REGION: eu-central-1
+      AWS_ACCESS_KEY_ID: /run/secrets/aws-key
+      AWS_SECRET_ACCESS_KEY: /run/secrets/aws-secret
+    secrets:  
+      - aws-key
+      - aws-secret
+    volumes:
+      - connectivity-letsencrypt-etc:/etc/letsencrypt
