@@ -1,3 +1,4 @@
+connectivity/secrets/aws-key
 tikautofw/secrets/ca.pem
 tikautofw/secrets/cert.pem
 tikautofw/secrets/key.pem
