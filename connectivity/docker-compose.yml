@@ -26,6 +26,7 @@ services:
       - connectivity
     environment:
       CONFIG_URL: http://nas.hutter.cloud/dnas/docker/connectivity/haproxy.cfg
+      SSL_CERTIFICATE: /etc/letsencrypt/live/usenet.hutter.cloud/haproxy.pem
     ports:
       - 80:80/tcp
       - 443:443/tcp
