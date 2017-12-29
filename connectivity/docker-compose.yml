@@ -26,17 +26,19 @@ services:
       - connectivity
     environment:
       CONFIG_URL: http://nas.hutter.cloud/dnas/docker/connectivity/haproxy.cfg
-      SSL_CERTIFICATE: /etc/letsencrypt/live/usenet.hutter.cloud/haproxy.pem
+      SSL_CERTIFICATE: /etc/letsencrypt/live/usenet.hutter.cloud-0001/haproxy.pem
     ports:
       - 80:80/tcp
       - 443:443/tcp
     volumes:
       - connectivity-letsencrypt-etc:/etc/letsencrypt
+    deploy:
+      replicas: 2
 
   certbot:
     image: sebastianhutter/certbot:latest  
     environment:
-      DOMAIN: usenet.hutter.cloud,calibre.hutter.cloud
+      DOMAIN: usenet.hutter.cloud,calibre.hutter.cloud,pizza-api.hutter.cloud,pizza-media.hutter.cloud
       EMAIL: mail@sebastian-hutter.ch
       AWS_DEFAULT_REGION: eu-central-1
       AWS_ACCESS_KEY_ID: /run/secrets/aws-key
