@@ -1,0 +1,10 @@
+version: '3.4'
+services:
+  squid:
+    image: sebastianhutter/squid:latest
+    ports:
+      - 63128:3128/tcp
+    environment:
+      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/siroop/siroop-squid.conf
+    stdin_open: true
+    tty: true
