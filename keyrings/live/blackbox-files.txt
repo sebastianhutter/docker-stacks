@@ -2,6 +2,7 @@ connectivity/secrets/aws-key
 connectivity/secrets/aws-secret
 drone/secrets/aws-key
 drone/secrets/aws-secret
+drone/secrets/drone-secret
 tikautofw/secrets/ca.pem
 tikautofw/secrets/cert.pem
 tikautofw/secrets/key.pem
