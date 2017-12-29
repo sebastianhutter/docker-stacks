@@ -30,8 +30,6 @@ services:
 
   privat:
     image: sebastianhutter/calibreserver:latest
-    environment:
-      PREFIX_URL: /sebastian
     stdin_open: true
     volumes:
         - calibre-privat-library:/library
