@@ -38,7 +38,7 @@ services:
   certbot:
     image: sebastianhutter/certbot:latest  
     environment:
-      DOMAIN: usenet.hutter.cloud,calibre.hutter.cloud,pizza-api.hutter.cloud,pizza-media.hutter.cloud
+      DOMAIN: usenet.hutter.cloud,calibre.hutter.cloud,pizza-api.hutter.cloud,pizza-media.hutter.cloud,status.hutter.cloud
       EMAIL: mail@sebastian-hutter.ch
       AWS_DEFAULT_REGION: eu-central-1
       AWS_ACCESS_KEY_ID: /run/secrets/aws-key
