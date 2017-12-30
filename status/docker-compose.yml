@@ -1,0 +1,28 @@
+version: '3.4'
+
+networks:
+  connectivity:
+    external:
+      name: connectivity
+
+secrets:
+  checkhttp-user:
+    file: ./secrets/checkhttp-user
+  checkhttp-pass:
+    file: ./secrets/checkhttp-pass
+
+services:
+  statuspage:
+    image: sebastianhutter/checkhttp:latest
+    environment:
+      CHECKHTTP_YAML_FILE: http://nas.barfoot.local/dnas/docker/status/checkhttp.yml
+      CHECKHTTP_WAIT_TIME: 300
+      CHECKHTTP_HTTP_USER: /run/secrets/checkhttp-user
+      CHECKHTTP_HTTP_PASS: /run/secrets/checkhttp-pass
+    stdin_open: true
+    tty: true
+    networks:
+      - connectivity
+    secrets:  
+      - checkhttp-user
+      - checkhttp-pass

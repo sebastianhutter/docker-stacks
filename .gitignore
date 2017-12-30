@@ -15,3 +15,5 @@
 /drone/secrets/drone-secret
 /drone/secrets/github-client
 /drone/secrets/github-secret
+/status/secrets/checkhttp-user
+/status/secrets/checkhttp-pass
