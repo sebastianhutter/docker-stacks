@@ -1,5 +1,6 @@
 connectivity/secrets/aws-key
 connectivity/secrets/aws-secret
+datadog/secrets/api-key
 drone/secrets/aws-key
 drone/secrets/aws-secret
 drone/secrets/drone-secret
