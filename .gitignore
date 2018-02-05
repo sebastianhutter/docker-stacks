@@ -17,3 +17,14 @@
 /drone/secrets/github-secret
 /status/secrets/checkhttp-user
 /status/secrets/checkhttp-pass
+/datadog/secrets/api-key
+/gocd/secrets/autoregister
+/gocd/secrets/ldap-base
+/gocd/secrets/ldap-dn
+/gocd/secrets/ldap-filter
+/gocd/secrets/ldap-pass
+/gocd/secrets/ldap-uri
+/gocd/secrets/securesiteurl
+/gocd/secrets/siteurl
+/gocd/secrets/ssh-key
+/gocd/secrets/ssh-key.pub
