@@ -9,6 +9,7 @@ drone/secrets/github-secret
 gocd/secrets/autoregister
 gocd/secrets/ldap-base
 gocd/secrets/ldap-dn
+gocd/secrets/ldap-filter
 status/secrets/checkhttp-pass
 status/secrets/checkhttp-user
 tikautofw/secrets/ca.pem
