@@ -14,6 +14,7 @@ gocd/secrets/ldap-pass
 gocd/secrets/ldap-uri
 gocd/secrets/securesiteurl
 gocd/secrets/siteurl
+gocd/secrets/ssh-key
 status/secrets/checkhttp-pass
 status/secrets/checkhttp-user
 tikautofw/secrets/ca.pem
