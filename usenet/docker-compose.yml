@@ -73,6 +73,12 @@ volumes:
       type: nfs
       o: addr=nas.hutter.cloud,rw,nolock,async
       device: ":/volume1/library/tv_de"
+  usenet-library-music:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/library/music"
 
   # volumes for couchpotato
   usenet-couchpotato-logs:
@@ -113,6 +119,14 @@ volumes:
       type: nfs
       o: addr=nas.hutter.cloud,rw,nolock,async
       device: ":/volume1/docker/usenet-sonarr-conf"
+
+  # volumes for headphones
+  usenet-headphones-config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/usenet-headphones-config"
 
 services:
   # reverse proxy handling incoming connections from our connectivity haproxy
@@ -193,6 +207,19 @@ services:
       - usenet-library-tv:/tv
       - usenet-library-tv-de:/tv_de
       - /dev/rtc:/dev/rtc:ro
+    networks:
+      - usenet
+    tty: true
+
+  headphones:
+    image: linuxserver/headphones
+    environment:
+      TZ: Europe/Zurich
+    stdin_open: true
+    volumes:
+      - usenet-sabnzbd-complete:/downloads
+      - usenet-library-music:/music
+      - usenet-headphones-config:/config
     networks:
       - usenet
     tty: true
