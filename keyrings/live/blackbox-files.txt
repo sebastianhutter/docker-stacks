@@ -10,6 +10,7 @@ gocd/secrets/autoregister
 gocd/secrets/ldap-base
 gocd/secrets/ldap-dn
 gocd/secrets/ldap-filter
+gocd/secrets/ldap-pass
 status/secrets/checkhttp-pass
 status/secrets/checkhttp-user
 tikautofw/secrets/ca.pem
