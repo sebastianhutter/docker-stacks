@@ -6,6 +6,7 @@ drone/secrets/aws-secret
 drone/secrets/drone-secret
 drone/secrets/github-client
 drone/secrets/github-secret
+gocd/secrets/autoregister
 status/secrets/checkhttp-pass
 status/secrets/checkhttp-user
 tikautofw/secrets/ca.pem
