@@ -1,0 +1,133 @@
+version: '3.4'
+
+networks:
+  connectivity:
+    external:
+      name: connectivity
+  gocd:
+    driver: overlay
+
+volumes:
+  gocd-db:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/gocd-db"
+  gocd-etc:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/gocd-etc"
+  gocd-artifacts:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/gocd-artifacts"
+  gocd-traefik:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=nas.hutter.cloud,rw,nolock,async
+      device: ":/volume1/docker/gocd-traefik"
+
+secrets:
+  aws-key:
+    file: ./secrets/aws-key
+  aws-secret:
+    file: ./secrets/aws-secret
+  autoregister:
+    file: ./secrets/autoregister
+  docker-pass:
+    file: ./secrets/docker-pass
+  docker-user:
+    file: ./secrets/docker-user
+  ldap-dn:
+    file: ./secrets/ldap-dn
+  ldap-pass:
+    file: ./secrets/ldap-pass
+  ssh-key:
+    file: ./secrets/ssh-key
+  swarm-ca:
+    file: ./secrets/swarm-ca
+  swarm-key:
+    file: ./secrets/swarm-key
+  swarm-cert:
+    file: ./secrets/swarm-cert
+
+services:
+  traefik:
+    image:  sebastianhutter/traefik:gocd
+    networks:
+      - connectivity
+      - gocd
+    environment:
+      AWS_REGION: eu-central-1
+      AWS_HOSTED_ZONE_ID: Z3CBRYU3UXXFKT
+    ports:
+      - 8153:8153/tcp
+      - 8154:8154/tcp
+      - 12000:8080/tcp
+    volumes:
+      - gocd-traefik:/acme
+    secrets:
+      - aws-key
+      - aws-secret
+      - swarm-ca
+      - swarm-cert
+      - swarm-key
+    command: --constraints="tag==gocd"
+
+  server:
+    image: sebastianhutter/gocd-server:latest
+    volumes:
+      - gocd-db:/godata/db
+      - gocd-etc:/godata/config
+      - gocd-artifacts:/godata/artifacts
+    networks:
+      - gocd
+    environment:
+      GOCD_CONFIGURATION_URL: "http://nas.hutter.cloud/dnas/docker/gocd/cruise-config.xml"
+    #   GOCD_SITEURL: "http://ci.hutter.cloud:8153"
+    #   GOCD_SECURESITEURL: "https://ci.hutter.cloud:8154"
+    #   GOCD_AUTOREGISTERKEY: "/run/secrets/autoregister"
+    #   GOCD_LDAP_URI: "ldap://nas.hutter.cloud"
+    #   GOCD_LDAP_BASE: "cn=users,dc=barfoot,dc=local"
+    #   GOCD_LDAP_DN: "/run/secrets/ldap-dn"
+    #   GOCD_LDAP_PASS: "/run/secrets/ldap-pass"
+    #   GOCD_LDAP_FILTER: "(uid={0})"
+    secrets:  
+      - autoregister
+      - ldap-pass
+      - ldap-dn
+      - ssh-key
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=gocd"
+        - "traefik.backend=gocd-server"
+        - "traefik.frontend.entryPoints=http,https"
+        - "traefik.frontend.rule=Host:ci.hutter.cloud"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=traefik"
+        - "traefik.port=8153"
+
+  # agent:
+  #   image: sebastianhutter/gocd-agent:latest
+  #   depends_on:
+  #     - server
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     GO_SERVER_URL: "https://ci.hutter.cloud:8154"
+  #   deploy:
+  #     mode: global
+  #   networks:
+  #     - gocd
+  #   secrets:
+  #     - autoregister
+  #     - ssh-key
+  #     - docker-user
+  #     - docker-pass
