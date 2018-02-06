@@ -10,6 +10,7 @@ gocd/secrets/autoregister
 gocd/secrets/aws-key
 gocd/secrets/aws-secret
 gocd/secrets/docker-pass
+gocd/secrets/docker-user
 gocd/secrets/ldap-base
 gocd/secrets/ldap-dn
 gocd/secrets/ldap-filter
