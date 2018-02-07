@@ -35,3 +35,9 @@
 /gocd/secrets/swarm-ca
 /gocd/secrets/swarm-cert
 /gocd/secrets/swarm-key
+/drone/secrets/swarm-ca
+/drone/secrets/swarm-cert
+/drone/secrets/swarm-key
+/connectivity/secrets/swarm-ca
+/connectivity/secrets/swarm-cert
+/connectivity/secrets/swarm-key
