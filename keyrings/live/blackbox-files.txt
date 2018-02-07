@@ -39,3 +39,4 @@ vault/secrets/aws-key
 vault/secrets/aws-secret
 vault/secrets/swarm-ca
 vault/secrets/swarm-cert
+vault/secrets/swarm-key
