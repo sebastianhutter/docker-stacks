@@ -2,11 +2,11 @@ version: '3.4'
 
 
 networks:
-  connectivity:
+  services:
     external:
-      name: connectivity
-  calibre:
-    driver: overlay
+      name: services
+  # calibre:
+  #   driver: overlay
 
 volumes:
   calibre-privat-library:
@@ -17,17 +17,6 @@ volumes:
       device: ":/volume1/calibre/personal"
 
 services:
-  reverse-proxy:
-    image: sebastianhutter/nginx
-    networks:
-      - connectivity
-      - calibre
-    stdin_open: true
-    tty: true
-    environment:
-      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/calibre/nginx.conf
-      INDEX_URL: http://nas.barfoot.local/dnas/docker/usenet/index.html
-
   privat:
     image: sebastianhutter/calibreserver:latest
     stdin_open: true
@@ -35,5 +24,14 @@ services:
         - calibre-privat-library:/library
     tty: true
     networks:
-      - calibre
-
+      - services
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=calibre-privat"
+        - "traefik.frontend.entryPoints=http,https"
+        - "traefik.frontend.rule=Host:calibre.hutter.cloud,PathStrip:/sebastian/"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=80"
