@@ -1,0 +1,28 @@
+version: '3.4'
+
+networks:
+  datadog:
+    driver: overlay
+
+secrets:
+  api-key:
+    file: ./secrets/api-key
+
+services:
+  agent:
+    image: datadog/docker-dd-agent:latest
+    depends_on:
+      - server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    environment:
+      API_KEY: 853acafbe34d1c1512fc01a41b78015e
+      SD_BACKEND: docker 
+    deploy:
+      mode: global
+    networks:
+      - datadog
+    secrets:
+      - api-key
