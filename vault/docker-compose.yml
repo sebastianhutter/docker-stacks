@@ -12,6 +12,13 @@ secrets:
     file: ./secrets/aws-key
   aws-secret:
     file: ./secrets/aws-secret
+  swarm-ca:
+    file: ./secrets/swarm-ca
+  swarm-key:
+    file: ./secrets/swarm-key
+  swarm-cert:
+    file: ./secrets/swarm-cert
+
 
 volumes:
   vault-server:
@@ -20,41 +27,34 @@ volumes:
       type: nfs
       o: addr=nas.hutter.cloud,rw,nolock,async
       device: ":/volume1/docker/vault-vault-server"
-  vault-letsencrypt-etc:
+  vault-traefik:
     driver: local
     driver_opts:
       type: nfs
       o: addr=nas.hutter.cloud,rw,nolock,async
-      device: ":/volume1/docker/vault-letsencrypt"
-
+      device: ":/volume1/docker/vault-traefik"
 
 services:
-  reverse-proxy:
-    image:  sebastianhutter/haproxy:latest
+  traefik:
+    image:  sebastianhutter/traefik:vault
     networks:
       - connectivity
       - vault
     environment:
-      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/vault/haproxy.cfg
-      SSL_CERTIFICATE: /etc/letsencrypt/live/vault.hutter.cloud/haproxy.pem
+      AWS_REGION: eu-central-1
+      AWS_HOSTED_ZONE_ID: Z3CBRYU3UXXFKT
     ports:
       - 8200:8200/tcp
+      - 12002:8080/tcp
     volumes:
-      - vault-letsencrypt-etc:/etc/letsencrypt
-
-  certbot:
-    image: sebastianhutter/certbot:latest  
-    environment:
-      DOMAIN: vault.hutter.cloud
-      EMAIL: mail@sebastian-hutter.ch
-      AWS_DEFAULT_REGION: eu-central-1
-      AWS_ACCESS_KEY_ID: /run/secrets/aws-key
-      AWS_SECRET_ACCESS_KEY: /run/secrets/aws-secret
-    secrets:  
+      - vault-traefik:/acme
+    secrets:
       - aws-key
       - aws-secret
-    volumes:
-      - vault-letsencrypt-etc:/etc/letsencrypt
+      - swarm-ca
+      - swarm-cert
+      - swarm-key
+    command: --constraints="tag==vault"
 
   vault-server:
     cap_add:
@@ -75,4 +75,13 @@ services:
       - server
       - -config
       - /vault/config
-
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=vault"
+        - "traefik.backend=vault-server"
+        - "traefik.frontend.entryPoints=https"
+        - "traefik.frontend.rule=Host:vault.hutter.cloud"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=vault"
+        - "traefik.port=8200"
