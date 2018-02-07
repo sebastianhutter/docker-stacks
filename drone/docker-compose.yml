@@ -84,7 +84,7 @@ services:
         - "traefik.enable=true"
         - "traefik.tags=drone"
         - "traefik.backend=drone-server"
-        - "traefik.frontend.entryPoints=http,https"
+        - "traefik.frontend.entryPoints=https"
         - "traefik.frontend.rule=Host:drone.hutter.cloud"
         - "traefik.protocol=http"
         - "traefik.docker.network=drone"
@@ -101,8 +101,7 @@ services:
       restart_policy:
         condition: on-failure
         delay: 5s
-        max_attempts: 3
-      
+        max_attempts: 3    
 
 # https://discourse.drone.io/t/solved-how-to-get-drone-working-in-docker-swarm-mode-with-docker-stack-deploy/1166/15
   agent:
