@@ -133,7 +133,6 @@ services:
     networks:
       - services
     environment:
-      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/usenet/nginx.conf
       INDEX_URL: http://nas.barfoot.local/dnas/docker/usenet/index.html
     deploy:
       labels:
