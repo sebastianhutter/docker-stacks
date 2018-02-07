@@ -37,3 +37,4 @@ tikautofw/secrets/key.pem
 tikautofw/secrets/mikrotik-pass
 vault/secrets/aws-key
 vault/secrets/aws-secret
+vault/secrets/swarm-ca
