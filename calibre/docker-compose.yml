@@ -5,9 +5,7 @@ networks:
   services:
     external:
       name: services
-  # calibre:
-  #   driver: overlay
-
+    
 volumes:
   calibre-privat-library:
     driver: local
@@ -30,8 +28,8 @@ services:
         - "traefik.enable=true"
         - "traefik.tags=back"
         - "traefik.backend=calibre-privat"
-        - "traefik.frontend.entryPoints=http,https"
-        - "traefik.frontend.rule=Host:calibre.hutter.cloud,PathStrip:/sebastian/"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:calibre.hutter.cloud;PathPrefixStrip:/sebastian"
         - "traefik.protocol=http"
         - "traefik.docker.network=services"
         - "traefik.port=80"
