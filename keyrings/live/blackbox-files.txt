@@ -1,6 +1,7 @@
 connectivity/secrets/aws-key
 connectivity/secrets/aws-secret
 connectivity/secrets/swarm-ca
+connectivity/secrets/swarm-cert
 datadog/secrets/api-key
 drone/secrets/aws-key
 drone/secrets/aws-secret
