@@ -8,6 +8,7 @@ drone/secrets/github-client
 drone/secrets/github-secret
 drone/secrets/swarm-ca
 drone/secrets/swarm-cert
+drone/secrets/swarm-key
 gocd/secrets/autoregister
 gocd/secrets/aws-key
 gocd/secrets/aws-secret
