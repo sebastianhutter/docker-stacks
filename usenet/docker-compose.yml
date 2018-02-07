@@ -1,11 +1,9 @@
 version: '3.4'
 
 networks:
-  connectivity:
+  services:
     external:
-      name: connectivity
-  usenet:
-    driver: overlay
+      name: services
 
 volumes:
   # volumes for nzbhydra services
@@ -130,14 +128,24 @@ volumes:
 
 services:
   # reverse proxy handling incoming connections from our connectivity haproxy
-  reverse-proxy:
+  homepage:
     image: sebastianhutter/nginx:latest
     networks:
-      - connectivity
-      - usenet
+      - services
     environment:
       CONFIG_URL: http://nas.hutter.cloud/dnas/docker/usenet/nginx.conf
       INDEX_URL: http://nas.barfoot.local/dnas/docker/usenet/index.html
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=usenet-homepage"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:usenet.hutter.cloud"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=80"
+
 
   # nzbhydra services
   nzbhydra-browser:
@@ -148,8 +156,18 @@ services:
     volumes:
       - usenet-nzbhydra-complete:/var/www/html/files
     networks:
-      - usenet
+      - services
     tty: true
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=usenet-hydra-browser"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:usenet.hutter.cloud;PathPrefixStrip:/nzbhydra-browser"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=80"
 
   nzbhydra:
     image: linuxserver/hydra
@@ -158,8 +176,18 @@ services:
       - usenet-nzbhydra-config:/config
       - usenet-nzbhydra-nzb:/downloads
     networks:
-      - usenet
+      - services
     tty: true
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=usenet-hydra"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:usenet.hutter.cloud;PathPrefix:/nzbhydra"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=5075"
 
   # usenet services
   sabnzbd:
@@ -174,8 +202,18 @@ services:
       - usenet-sabnzbd-incomplete:/sabnzbd/Downloads/incomplete
       - usenet-sabnzbd-logs:/sabnzbd/logs
     networks:
-      - usenet
+      - services
     tty: true
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=usenet-sabnzbd"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:usenet.hutter.cloud;PathPrefix:/sabnzbd"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=8085"
 
   couchpotato:
     image: sebastianhutter/couchpotato:latest
@@ -192,8 +230,18 @@ services:
       - usenet-sabnzbd-complete:/sabnzbd/Downloads/complete
       - usenet-library:/library
     networks:
-      - usenet
+      - services
     tty: true
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=usenet-couchpotato"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:usenet.hutter.cloud;PathPrefix:/couchpotato"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=5050"
 
   sonarr:
     image: linuxserver/sonarr
@@ -208,8 +256,18 @@ services:
       - usenet-library-tv-de:/tv_de
       - /dev/rtc:/dev/rtc:ro
     networks:
-      - usenet
+      - services
     tty: true
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=usenet-sonarr"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:usenet.hutter.cloud;PathPrefix:/sonarr"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=8989"
 
   headphones:
     image: linuxserver/headphones
@@ -221,5 +279,15 @@ services:
       - usenet-library-music:/music
       - usenet-headphones-config:/config
     networks:
-      - usenet
+      - services
     tty: true
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=usenet-headphones"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:usenet.hutter.cloud;PathPrefix:/headphones"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=8181"
