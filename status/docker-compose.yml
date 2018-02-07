@@ -1,9 +1,9 @@
 version: '3.4'
 
 networks:
-  connectivity:
+  services:
     external:
-      name: connectivity
+      name: services
 
 secrets:
   checkhttp-user:
@@ -22,7 +22,17 @@ services:
     stdin_open: true
     tty: true
     networks:
-      - connectivity
+      - services
     secrets:  
       - checkhttp-user
       - checkhttp-pass
+    deploy:
+      labels:
+        - "traefik.enable=true"
+        - "traefik.tags=back"
+        - "traefik.backend=status"
+        - "traefik.frontend.entryPoints=http"
+        - "traefik.frontend.rule=Host:status.hutter.cloud"
+        - "traefik.protocol=http"
+        - "traefik.docker.network=services"
+        - "traefik.port=8080"
