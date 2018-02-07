@@ -9,12 +9,6 @@ networks:
       name: services
 
 volumes:
-  connectivity-letsencrypt-etc:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=nas.hutter.cloud,rw,nolock,async
-      device: ":/volume1/docker/connectivity-letsencrypt"
   connectivity-letsencrypt-nas-etc:
     driver: local
     driver_opts:
@@ -41,11 +35,11 @@ secrets:
     file: ./secrets/swarm-cert
 
 services:
-  proxy:
+  authentication:
     image: sebastianhutter/nginx
     networks:
-      - connectivity
       - services
+      - connectivity
     stdin_open: true
     tty: true
     environment:
@@ -54,9 +48,9 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.tags=front"
-        - "traefik.backend=proxy"
+        - "traefik.backend=authentication"
         - "traefik.frontend.entryPoints=http,https"
-        - "traefik.frontend.rule=Host:calibre.hutter.cloud,status.hutter.cloud"
+        - "traefik.frontend.rule=Host:calibre.hutter.cloud,status.hutter.cloud,usenet.hutter.cloud"
         - "traefik.protocol=http"
         - "traefik.docker.network=connectivity"
         - "traefik.port=80"
@@ -69,8 +63,8 @@ services:
       AWS_REGION: eu-central-1
       AWS_HOSTED_ZONE_ID: Z3CBRYU3UXXFKT
     ports:
-      - 8888:8888/tcp
-      - 8899:8899/tcp
+      - 80:80/tcp
+      - 443:443/tcp
       - 12001:8080/tcp
     volumes:
       - connectivity-traefik:/acme
@@ -101,22 +95,8 @@ services:
       - swarm-key
     command: --constraints="tag==back"
 
-# not necessary if new setup works
-  reverse-proxy:
-    image:  sebastianhutter/haproxy:latest
-    networks:
-      - connectivity
-    environment:
-      CONFIG_URL: http://nas.hutter.cloud/dnas/docker/connectivity/haproxy.cfg
-      SSL_CERTIFICATE: /etc/letsencrypt/live/usenet.hutter.cloud-0001/haproxy.pem
-    ports:
-      - 80:80/tcp
-      - 443:443/tcp
-    volumes:
-      - connectivity-letsencrypt-etc:/etc/letsencrypt
-    deploy:
-      replicas: 2
-
+  # create certificate for nas.hutter.cloud 
+  # needs manual renewal all 90 days
   certbot-nas:
     image: sebastianhutter/certbot:latest  
     environment:
