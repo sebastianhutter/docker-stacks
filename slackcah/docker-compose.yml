@@ -1,0 +1,15 @@
+version: '3.4'
+
+
+
+secrets:
+  token:
+    file: ./secrets/token
+
+services:
+  slackcah:
+    image:  sebastianhutter/slackcah
+    environment:
+      GAME_BOARD_NAME: "cardsagainsthumanity"
+      SLACK_API_TOKEN: /run/secrets/token
+
