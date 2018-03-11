@@ -12,6 +12,7 @@ drone/secrets/github-secret
 drone/secrets/swarm-ca
 drone/secrets/swarm-cert
 drone/secrets/swarm-key
+slackcah/secrets/token
 status/secrets/checkhttp-pass
 status/secrets/checkhttp-user
 tikautofw/secrets/ca.pem
