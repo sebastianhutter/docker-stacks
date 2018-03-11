@@ -12,4 +12,5 @@ services:
     environment:
       GAME_BOARD_NAME: "cardsagainsthumanity"
       SLACK_API_TOKEN: /run/secrets/token
-
+    secrets:
+      - token
